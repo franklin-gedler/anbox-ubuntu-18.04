@@ -13,7 +13,7 @@ else
 	TEMPDIR=`mktemp -d`
 	cd $TEMPDIR
 	apt-get update
-	apt-get install -y git dkms build-essential
+	apt-get install -y git dkms build-essential lzip curl
 
 	#Instalo modulos en el kernel
 	git clone https://github.com/anbox/anbox-modules.git
@@ -38,7 +38,24 @@ else
 	wget https://build.anbox.io/android-images/2018/07/19/android_amd64.img -O /var/lib/anbox/android.img 2>&1
 	cp $TEMPDIR/anbox/scripts/*.sh /usr/local/share/anbox/
 	
+	# Descargo file
 	cd $TEMPDIR
+	wget https://raw.githubusercontent.com/franklin-gedler/anbox-ubuntu-18.04/master/anbox-container-manager.service 2>&1
+	wget https://raw.githubusercontent.com/franklin-gedler/anbox-ubuntu-18.04/master/anbox-session-manager.service 2>&1
+	wget https://raw.githubusercontent.com/franklin-gedler/anbox-ubuntu-18.04/master/anbox.desktop 2>&1
+	wget https://github.com/franklin-gedler/anbox-ubuntu-18.04/raw/master/anbox.png 2>&1
+	wget https://github.com/franklin-gedler/anbox-ubuntu-18.04/raw/master/anbox.1.gz 2>&1
 
+	# los muevo a la ruta que corresponde
+	cp anbox-container-manager.service /lib/systemd/system/
+	cp anbox-session-manager.service /usr/lib/systemd/user/
+	cp anbox.desktop /usr/share/applications/
+	cp anbox.png /usr/share/pixmaps/
+	cp anbox.1.gz /usr/share/man/man1/
 
+	# cargo e inicio los demonios
+	systemctl enable /lib/systemd/system/anbox-container-manager.service
+	systemctl enable /usr/lib/systemd/user/anbox-session-manager.service
+	systemctl start /lib/systemd/system/anbox-container-manager.service
+	systemctl start /usr/lib/systemd/user/anbox-session-manager.service
 fi
