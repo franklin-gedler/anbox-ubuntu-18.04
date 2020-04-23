@@ -9,11 +9,20 @@ if [[ $? -ne 0 ]] || [[ "$EUID" != 0 ]]; then
 	exit 1
 else
 
+	varusr=$(who > /tmp/varusr && awk -F: '{ print $1}' /tmp/varusr | tr -d '[[:space:]]')
+	idusr=$(id -u $varusr)
+
 	#cd "$(mktemp -d)"
 	TEMPDIR=`mktemp -d`
 	cd $TEMPDIR
 	apt-get update
-	apt-get install -y git dkms build-essential lzip curl
+	apt install -y git dialog dkms lzip curl build-essential cmake cmake-data debhelper dbus google-mock \
+    libboost-dev libboost-filesystem-dev libboost-log-dev libboost-iostreams-dev \
+    libboost-program-options-dev libboost-system-dev libboost-test-dev \
+    libboost-thread-dev libcap-dev libsystemd-dev libegl1-mesa-dev \
+    libgles2-mesa-dev libglm-dev libgtest-dev liblxc1 \
+    libproperties-cpp-dev libprotobuf-dev libsdl2-dev libsdl2-image-dev lxc-dev \
+    pkg-config protobuf-compiler
 
 	#Instalo modulos en el kernel
 	git clone https://github.com/anbox/anbox-modules.git
@@ -23,14 +32,17 @@ else
 	cp -rT anbox-modules/binder /usr/src/anbox-binder-1
 	dkms install anbox-ashmem/1
 	dkms install anbox-binder/1
+	modprobe ashmem_linux
+	modprobe binder_linux
 
-	# Descargo y compilo codigo fuente
+	# Descargo y compilo codigo fuente (ver si asi no pide password para iniciar el soft)
 	git clone https://github.com/anbox/anbox.git
 	cd anbox
 	mkdir build
 	cd build
 	cmake ..
 	make
+
 	make install
 
 	# Descargo la imagen de android
@@ -45,6 +57,7 @@ else
 	wget https://raw.githubusercontent.com/franklin-gedler/anbox-ubuntu-18.04/master/anbox.desktop 2>&1
 	wget https://github.com/franklin-gedler/anbox-ubuntu-18.04/raw/master/anbox.png 2>&1
 	wget https://github.com/franklin-gedler/anbox-ubuntu-18.04/raw/master/anbox.1.gz 2>&1
+	wget https://raw.githubusercontent.com/franklin-gedler/anbox-ubuntu-18.04/master/install-playstore.sh 2>&1
 
 	# los muevo a la ruta que corresponde
 	cp anbox-container-manager.service /lib/systemd/system/
@@ -58,4 +71,14 @@ else
 	systemctl enable /usr/lib/systemd/user/anbox-session-manager.service
 	systemctl start /lib/systemd/system/anbox-container-manager.service
 	systemctl start /usr/lib/systemd/user/anbox-session-manager.service
+
+	# ejecuto el script para instalar playstore
+	chmod +x install-playstore.sh
+	source install-playstore.sh
+
+	# Mje al usuario
+	dialog --title "README" --msgbox "Listo . . \n Para completar la preparacion es necesario \n reiniciar el equipo"." \n   Created by Franklin Gedler Support Team" 0 0
+	clear
+	reboot	
+
 fi
