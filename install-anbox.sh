@@ -1,11 +1,8 @@
-
 #!/bin/bash
-
-set -e
 
 ping -c1 google.com &>/dev/null
 if [[ $? -ne 0 ]] || [[ "$EUID" != 0 ]]; then
-	echo "Este Script requiere root o no tienes conexion a internet"
+	echo "Este Script requiere sudo o no tienes conexion a internet"
 	exit 1
 else
 
@@ -17,12 +14,12 @@ else
 	cd $TEMPDIR
 	apt-get update
 	apt install -y git dialog dkms lzip curl build-essential cmake cmake-data debhelper dbus google-mock \
-    libboost-dev libboost-filesystem-dev libboost-log-dev libboost-iostreams-dev \
+	libboost-dev libboost-filesystem-dev libboost-log-dev libboost-iostreams-dev \
     libboost-program-options-dev libboost-system-dev libboost-test-dev \
     libboost-thread-dev libcap-dev libsystemd-dev libegl1-mesa-dev \
     libgles2-mesa-dev libglm-dev libgtest-dev liblxc1 \
     libproperties-cpp-dev libprotobuf-dev libsdl2-dev libsdl2-image-dev lxc-dev \
-    pkg-config protobuf-compiler
+    pkg-config protobuf-compiler android-tools-adb android-tools-fastboot
 
 	#Instalo modulos en el kernel
 	git clone https://github.com/anbox/anbox-modules.git
@@ -77,7 +74,7 @@ else
 	source install-playstore.sh
 
 	# Mje al usuario
-	dialog --title "README" --msgbox "Listo . . \n Para completar la preparacion es necesario \n reiniciar el equipo"." \n   Created by Franklin Gedler Support Team" 0 0
+	dialog --title "README" --msgbox "Listo . . \n Para completar la instalacion es necesario \n reiniciar el equipo"." \n   Created by Franklin Gedler Support Team" 0 0
 	clear
 	reboot	
 
