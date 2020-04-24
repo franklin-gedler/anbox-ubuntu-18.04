@@ -1,4 +1,4 @@
-# anbox-ubuntu-18.04
+# anbox-ubuntu-18.04 - Not Snap
 
 Script para la instalacion del anbox en Ubuntu 18.04 a su vez instala la imagen android con al playstore instalada
 
